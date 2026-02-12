@@ -42,48 +42,57 @@ public class CalculateSales {
 
 		// ※ここから集計処理を作成してください。(処理内容2-1、2-2)
 		//処理内容2-1
-		File[] files = new File("C:\\Users\\ueda.hirotaka\\Desktop\\売上集計課題").listFiles();
+		File[] files = new File(args[0]).listFiles();
 
 		//先にファイルの情報を格納する List(ArrayList) を宣⾔します。
 		List<File> rcdFiles = new ArrayList<>();
-
 
 		//filesの数だけ繰り返すことで、
 		//指定したパスに存在する全てのファイル(または、ディレクトリ)の数だけ繰り返されます。
 		for(int i = 0; i < files.length ; i++) {
 			String fileName = files[i].getName(); //でファイル名が取得できます。
-			if(fileName.matches("^[0-9]+\\.rcd$")) {
+			if(fileName.matches("^[0-9]{8}\\.rcd$")) {
 	            //売上ファイルの条件に当てはまったものだけ、List(ArrayList) に追加します。
-			rcdFiles.add(files[i]);
+				rcdFiles.add(files[i]);
 			}
 		}
-
 
 		//処理内容2-2
 		//rcdFilesに複数の売上ファイルの情報を格納しているので、その数だけ繰り返します。
 		for(int i = 0; i < rcdFiles.size(); i++) {
-
+			BufferedReader br = null;
 			//支店定義ファイル読み込み(readFileメソッド)を参考に売上ファイルの中身を読み込みます。
-			try (BufferedReader br = new BufferedReader(new FileReader(rcdFiles.get(i)))) {
+			try{
+		        FileReader fr = new FileReader(rcdFiles.get(i));
+		        br = new BufferedReader(fr);
+
+				List<String> list = new ArrayList<>();
+				String line;
 				//売上ファイルの1行目には支店コード、2行目には売上金額が入っています。
-				String branchCode = br.readLine();
-				String lineSale = br.readLine();
+				while ((line = br.readLine()) != null) {
+					//売上ファイルの中身は新しいListに保持しましょう
+					list.add(line);
+				}
+					String branchCode = list.get(0);
+					String lineSale = list.get(1);
+					long fileSale = Long.parseLong(lineSale);
+					Long saleAmount = branchSales.getOrDefault(branchCode, 0L) + fileSale;
+			        branchSales.put(branchCode, saleAmount);
 
-				//売上ファイルから読み込んだ売上金額をMapに加算していくために、型の変換を行います。
-				long fileSale = Long.parseLong(lineSale);
-				//long currentTotal = branchSales.get(code);
-				//読み込んだ売上⾦額を加算します。
-				Long saleAmount = branchSales.get(branchCode) + fileSale;
-
-				//加算した売上⾦額をMapに追加します。
-				branchSales.put(branchCode, saleAmount);
-
-				//確認用
-				//System.out.println("売上金額マップ" + branchSales);
 			} catch (IOException e) {
 		        // ファイルが読み込めなかった場合のエラー処理
 		        System.out.println(UNKNOWN_ERROR);
 		        return;
+		    } finally {
+				if(br != null) {
+					try {
+						// ファイルを閉じる
+						br.close();
+					} catch(IOException e) {
+						System.out.println(UNKNOWN_ERROR);
+						return;
+					}
+				}
 		    }
 		}
 
@@ -118,16 +127,14 @@ public class CalculateSales {
 			while((line = br.readLine()) != null) {
 				// ※ここの読み込み処理を変更してください。(処理内容1-2)
 
-
 				//各要素を「,」で区切り、itemsに格納する
 			    String[] items = line.split(",");
-			    //コードと支店名に分けて、空白がないようにする
-			    String branchCode = items[0].trim();
-			    String branchName = items[1].trim();
+			    //コードと支店名に分けて、それぞれ格納する
+			    String branchCode = items[0];
+			    String branchName = items[1];
 			    //branchNamesにcode(キー)とbranchName(バリュー)を格納する
 			    branchNames.put(branchCode, branchName);
 			    branchSales.put(branchCode, 0L);
-
 			}
 
 		} catch(IOException e) {
@@ -165,32 +172,21 @@ public class CalculateSales {
 			FileWriter fw = new FileWriter(file);
 			bw = new BufferedWriter(fw);
 
-
 			for (String branchCode : branchNames.keySet()) {
-
-				//支店名を取得
-				String branchName = branchNames.get(branchCode);
-				//合計金額を取得
-				long totalSales = branchSales.get(branchCode);
-
-				//書き込む行を作成
-				String line = branchCode + "," + branchName + "," + totalSales;
-
 				//ファイルに書き込む
-				bw.write(line);
+				bw.write(branchCode + "," + branchNames.get(branchCode) + "," + branchSales.get(branchCode));
 				//改行を入れる
 				bw.newLine();
-				System.out.println(line);
 			}
 		} catch(IOException e) {
-			System.out.println("例外が発生しました。");
+			System.out.println(UNKNOWN_ERROR);
 			System.out.println(e);
 		} finally {
 			if(bw != null) {
 				try {
 					bw.close();
 				} catch (IOException e) {
-					System.out.println("close処理中に例外が発生しました。");
+					System.out.println(UNKNOWN_ERROR);
 					System.out.println(e);
 				}
 			}
