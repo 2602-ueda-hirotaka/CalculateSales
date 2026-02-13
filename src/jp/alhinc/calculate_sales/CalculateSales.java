@@ -21,14 +21,13 @@ public class CalculateSales {
 	private static final String FILE_NAME_BRANCH_OUT = "branch.out";
 
 	// エラーメッセージ
-	private static final String UNKNOWN_ERROR = "支店定義ファイルが存在しません";
+	private static final String UNKNOWN_ERROR = "予期せぬエラーが発⽣しました";
 	private static final String FILE_NOT_EXIST = "支店定義ファイルが存在しません";
 	private static final String FILE_INVALID_FORMAT = "支店定義ファイルのフォーマットが不正です";
 	private static final String SALES_FILE_NUMBER_GAP = "売上ファイル名が連番になっていません";
 	private static final String TOTAL_AMOUNT_LIMIT_ERROR = "合計⾦額が10桁を超えました";
-	private static final String INVALID_ARGS_ERROR = "引数を1つ（ディレクトリパス）指定してください";
-	private static final String INVALID_FORMAT_ERROR = "売上ファイルが2行になっていません";
-	private static final String BRANCH_CODE_NOT_FOUND = "売上ファイルの⽀店コードが存在していません";
+	private static final String INVALID_FORMAT_ERROR = "のフォーマットが不正です";
+	private static final String BRANCH_CODE_NOT_FOUND = "の⽀店コードが不正です";
 
 	/**
 	 * メインメソッド
@@ -38,7 +37,7 @@ public class CalculateSales {
 	public static void main(String[] args) {
 		//引数のパスを設定しているか確認
 		if (args.length != 1) {
-	        System.out.println(INVALID_ARGS_ERROR);
+	        System.out.println(UNKNOWN_ERROR);
 	        return;
 	    }
 		// 支店コードと支店名を保持するMap
@@ -103,12 +102,6 @@ public class CalculateSales {
 					fileContent.add(line);
 				}
 
-				if(fileContent.size() != 2) {
-				    //売上ファイルの⾏数が2⾏ではなかった場合は、
-				    //エラーメッセージをコンソールに表⽰します。
-					System.out.println(INVALID_FORMAT_ERROR);
-					return;
-				}
 
 				String branchCode = fileContent.get(0);
 				String lineSale = fileContent.get(1);
@@ -116,7 +109,14 @@ public class CalculateSales {
 				if (!branchNames.containsKey(branchCode)) {
 				    //⽀店情報を保持しているMapに売上ファイルの⽀店コードが存在しなかった場合は、
 				    //エラーメッセージをコンソールに表⽰します。
-					System.out.println(BRANCH_CODE_NOT_FOUND);
+					System.out.println(rcdFiles.get(i).getName() + BRANCH_CODE_NOT_FOUND);
+					return;
+				}
+
+				if(fileContent.size() != 2) {
+				    //売上ファイルの⾏数が2⾏ではなかった場合は、
+				    //エラーメッセージをコンソールに表⽰します。
+					System.out.println(rcdFiles.get(i).getName() + INVALID_FORMAT_ERROR);
 					return;
 				}
 
