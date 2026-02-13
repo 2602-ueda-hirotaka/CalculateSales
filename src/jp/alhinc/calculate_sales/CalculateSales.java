@@ -25,6 +25,7 @@ public class CalculateSales {
 	private static final String FILE_NOT_EXIST = "支店定義ファイルが存在しません";
 	private static final String FILE_INVALID_FORMAT = "支店定義ファイルのフォーマットが不正です";
 	private static final String SALES_FILE_NUMBER_GAP = "売上ファイル名が連番になっていません";
+	private static final String TOTAL_AMOUNT_LIMIT_ERROR = "合計⾦額が10桁を超えました";
 
 	/**
 	 * メインメソッド
@@ -32,6 +33,11 @@ public class CalculateSales {
 	 * @param コマンドライン引数
 	 */
 	public static void main(String[] args) {
+		
+		if (args.length != 1) { 
+	        System.out.println("引数を1つ（ディレクトリパス）指定してください。");
+	        return; 
+	    }
 		// 支店コードと支店名を保持するMap
 		Map<String, String> branchNames = new HashMap<>();
 		// 支店コードと売上金額を保持するMap
@@ -107,11 +113,32 @@ public class CalculateSales {
 					//売上ファイルの中身は新しいListに保持しましょう
 					fileContent.add(line);
 				}
-					String branchCode = fileContent.get(0);
-					String lineSale = fileContent.get(1);
-					long fileSale = Long.parseLong(lineSale);
-					Long saleAmount = branchSales.getOrDefault(branchCode, 0L) + fileSale;
-			        branchSales.put(branchCode, saleAmount);
+				
+				if(fileContent.size() != 2) { 
+				    //売上ファイルの⾏数が2⾏ではなかった場合は、 
+				    //エラーメッセージをコンソールに表⽰します。 
+					System.out.println("売上ファイルが2行になっているか確認");
+					return;
+				}
+				
+				String branchCode = fileContent.get(0);
+				String lineSale = fileContent.get(1);
+				
+				if (!branchNames.containsKey(branchCode)) { 
+				    //⽀店情報を保持しているMapに売上ファイルの⽀店コードが存在しなかった場合は、 
+				    //エラーメッセージをコンソールに表⽰します。 
+					System.out.println("売上ファイルの⽀店コードが存在しなかった");
+					return;
+				}
+				long fileSale = Long.parseLong(lineSale);
+				Long saleAmount = branchSales.getOrDefault(branchCode, 0L) + fileSale;
+				//=======エラー処理2 売上⾦額の合計が10桁を超えたか確認する==========
+				if(saleAmount >= 10000000000L){
+					System.out.println(TOTAL_AMOUNT_LIMIT_ERROR);
+					return;
+				}
+				//===================================================================
+		        branchSales.put(branchCode, saleAmount);
 
 			} catch (IOException e) {
 		        // ファイルが読み込めなかった場合のエラー処理
