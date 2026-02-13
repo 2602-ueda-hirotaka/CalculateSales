@@ -104,17 +104,18 @@ public class CalculateSales {
 				String branchCode = fileContent.get(0);
 				String lineSale = fileContent.get(1);
 
+				String fileName = files[i].getName();
 				if (!branchNames.containsKey(branchCode)) {
 				    //⽀店情報を保持しているMapに売上ファイルの⽀店コードが存在しなかった場合は、
 				    //エラーメッセージをコンソールに表⽰します。
-					System.out.println(rcdFiles.get(i).getName() + BRANCH_CODE_NOT_FOUND);
+					System.out.println(fileName + BRANCH_CODE_NOT_FOUND);
 					return;
 				}
 
 				if(fileContent.size() != 2) {
 				    //売上ファイルの⾏数が2⾏ではなかった場合は、
 				    //エラーメッセージをコンソールに表⽰します。
-					System.out.println(rcdFiles.get(i).getName() + INVALID_FORMAT_ERROR);
+					System.out.println(fileName + INVALID_FORMAT_ERROR);
 					return;
 				}
 
