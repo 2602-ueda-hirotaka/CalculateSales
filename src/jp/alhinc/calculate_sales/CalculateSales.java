@@ -81,7 +81,6 @@ public class CalculateSales {
 				//エラーメッセージをコンソールに表⽰します。
 				System.out.println(SALES_FILE_NUMBER_GAP);
 				return;
-
 			}
 		}
 
@@ -101,7 +100,6 @@ public class CalculateSales {
 					//売上ファイルの中身は新しいListに保持しましょう
 					fileContent.add(line);
 				}
-
 
 				String branchCode = fileContent.get(0);
 				String lineSale = fileContent.get(1);
@@ -133,7 +131,6 @@ public class CalculateSales {
 					System.out.println(TOTAL_AMOUNT_LIMIT_ERROR);
 					return;
 				}
-
 		        branchSales.put(branchCode, saleAmount);
 
 			} catch (IOException e) {
